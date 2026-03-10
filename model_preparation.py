@@ -65,16 +65,20 @@ def save_model(model, filename):
         joblib.dump(model, filename)
     except Exception as ex:
         print(400, "MODEL_SAVE_ERROR")
-        
-x_data, y_data = load_data(TRAIN_DIR)
+   
+def main():  
+    x_data, y_data = load_data(TRAIN_DIR)
 
-model = create_and_fit(
-    x_train=x_data,
-    y_train=y_data
-)
+    model = create_and_fit(
+        x_train=x_data,
+        y_train=y_data
+    )
 
-print("Модель успешно обучена!")
+    print("Модель успешно обучена!")
 
-save_model(model, MODEL_NAME)
+    save_model(model, MODEL_NAME)
 
-print(f"Модель сохранена по пути {MODEL_NAME}")
+    print(f"Модель сохранена по пути {MODEL_NAME}")
+
+if __name__ == "__main__":
+    main()

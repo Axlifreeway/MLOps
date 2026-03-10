@@ -43,12 +43,16 @@ def evaluate_model(model, x_test, y_test):
     
     return {'R2': r2, 'MAE': mae, 'MSE': mse, 'RMSE': rmse}
 
-x_data, y_data = load_data(TEST_DIR)
+def main():
+    x_data, y_data = load_data(TEST_DIR)
 
-model = load_model(MODEL_NAME)
+    model = load_model(MODEL_NAME)
 
-metrics = evaluate_model(model, x_data, y_data)
+    metrics = evaluate_model(model, x_data, y_data)
 
-print("Метрики регрессии на тестовых данных:")
-for metric_name, value in metrics.items():
-    print(f"{metric_name}: {value:.4f}")
+    print("Метрики регрессии на тестовых данных:")
+    for metric_name, value in metrics.items():
+        print(f"{metric_name}: {value:.4f}")
+        
+if __name__ == "__main__":
+    main()
