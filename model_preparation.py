@@ -13,7 +13,8 @@ def load_data(path):
     dfs = []
     for dirname, _, filenames in os.walk(path):
         for filename in filenames:
-            dfs.append(pd.read_csv(os.path.join(dirname, filename)))
+            if 'preprocessed' in filename:
+                dfs.append(pd.read_csv(os.path.join(dirname, filename)))
     
     if not dfs:
         raise ValueError("DATA_LOAD_ERROR: No data found")
@@ -23,14 +24,22 @@ def load_data(path):
     
     return x, y
 
-def create_and_fit(X_train, y_train, random_state=42):
+def create_and_fit(
+    X_train,
+    y_train,
+    n_estimators=200,
+    max_depth=None,
+    criterion='squared_error',
+    min_samples_split=2,
+    random_state=42
+):
     base_model = RandomForestRegressor(random_state=random_state)
     
     distributions = {
         'n_estimators': [100, 200, 300],
         'max_depth': [None, 10, 20, 60],
+        'criterion': ['squared_error'],
         'min_samples_split': [2, 4, 10],
-        'criterion': ['mse']
     }
     
     search = RandomizedSearchCV(

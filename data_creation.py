@@ -11,7 +11,7 @@ def generate_data(num_samples=1000):
         idx = random.randint(0, num_samples - 1)
         y[idx] += random.choice([-3, 3, -4, 4])
         
-    return pd.DataFrame({'time': x, 'temperature': y})
+    return pd.DataFrame({'time': x, 'y': y})
 
 def main():
     if not os.path.exists('train'):

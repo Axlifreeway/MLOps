@@ -14,7 +14,8 @@ def load_data(path):
     dfs = []
     for dirname, _, filenames in os.walk(path):
         for filename in filenames:
-            dfs.append(pd.read_csv(os.path.join(dirname, filename)))
+            if 'preprocessed' in filename:
+                dfs.append(pd.read_csv(os.path.join(dirname, filename)))
     
     if not dfs:
         print(404, "DATA_LOAD_ERROR")
