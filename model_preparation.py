@@ -16,69 +16,52 @@ def load_data(path):
             dfs.append(pd.read_csv(os.path.join(dirname, filename)))
     
     if not dfs:
-        print(404, "DATA_LOAD_ERROR")
-        raise ValueError()
+        raise ValueError("DATA_LOAD_ERROR: No data found")
     
     df = pd.concat(dfs, ignore_index=True)
     x, y = df.drop('y', axis=1), df['y']
     
     return x, y
 
-def create_and_fit(
-    x_train,
-    y_train,
-    n_estimators=200,
-    max_depth=None,
-    criterion='mse',
-    min_samples_split=2,
-    random_state=42
-):
+def create_and_fit(X_train, y_train, random_state=42):
+    base_model = RandomForestRegressor(random_state=random_state)
+    
     distributions = {
-        n_estimators: [100, 200, 300],
-        max_depth: [None, 10, 20, 60],
-        criterion: ['mse'],
-        min_samples_split: [2, 4, 10],
+        'n_estimators': [100, 200, 300],
+        'max_depth': [None, 10, 20, 60],
+        'min_samples_split': [2, 4, 10],
+        'criterion': ['mse']
     }
- 
-    try:       
-        model = RandomForestRegressor(
-            n_estimators=n_estimators,
-            max_depth=max_depth,
-            criterion=criterion,
-            min_samples_split=min_samples_split,
-            random_state=random_state,
-        )
-        
-        clf = RandomizedSearchCV(model, distributions, random_state=random_state)        
-    except Exception as ex:
-        print(400, 'MODEL_CREATION_ERROR')    
-        
+    
+    search = RandomizedSearchCV(
+        base_model, 
+        distributions, 
+        random_state=random_state,
+        n_iter=10, 
+        cv=3,      
+        scoring='r2'
+    )
+    
     try:
-        clf.fit(x_train, y_train)
-    except Exception as ex:
-        print(400, 'MODEL_FIT_ERROR') 
-        
-    return clf.best_estimator_
+        search.fit(X_train, y_train)
+        print("Модель успешно обучена. Лучшие параметры:", search.best_params_)
+        return search.best_estimator_
+    except Exception as e:
+        raise RuntimeError(f"MODEL_FIT_ERROR: {e}")
 
 def save_model(model, filename):
     try:
         joblib.dump(model, filename)
-    except Exception as ex:
-        print(400, "MODEL_SAVE_ERROR")
-   
-def main():  
-    x_data, y_data = load_data(TRAIN_DIR)
+        print(f"Модель сохранена в {filename}")
+    except Exception as e:
+        raise IOError(f"MODEL_SAVE_ERROR: {e}")
 
-    model = create_and_fit(
-        x_train=x_data,
-        y_train=y_data
-    )
-
-    print("Модель успешно обучена!")
+def main():
+    X_train, y_train = load_data(TRAIN_DIR)
+    
+    model = create_and_fit(X_train, y_train)
 
     save_model(model, MODEL_NAME)
-
-    print(f"Модель сохранена по пути {MODEL_NAME}")
 
 if __name__ == "__main__":
     main()
